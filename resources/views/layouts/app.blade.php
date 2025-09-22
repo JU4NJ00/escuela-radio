@@ -29,7 +29,12 @@
 
             <!-- Page Content -->
             <main>
-                {{ $slot }}
+                {{-- Compatible con component slot o con secciones clásicas --}}
+                @if(isset($slot))
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endif
             </main>
         </div>
     </body>

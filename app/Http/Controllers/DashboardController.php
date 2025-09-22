@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Posteo;
+use App\Models\Programa;
+use App\Models\Programacion;
 
 class DashboardController extends Controller
 {
     /**
-     * Muestra el dashboard con los posteos existentes.
-     *
-     * @return \Illuminate\View\View
+     * Mostrar panel admin con resumen y accesos rápidos.
      */
     public function index()
     {
-        // Obtener todos los posteos, ordenados por fecha de creación de forma descendente y paginados
-        $posteos = Posteo::latest()->paginate(8);
+        $counts = [
+            'posteos' => Posteo::count(),
+            'programas' => Programa::count(),
+            'programaciones' => Programacion::count(),
+        ];
 
-        // Retornar la vista del dashboard con los posteos paginados
-        return view('dashboard', compact('posteos'));
+        $ultimosPosteos = Posteo::orderBy('created_at', 'desc')->limit(5)->get();
+        $ultimosProgramas = Programa::orderBy('created_at', 'desc')->limit(5)->get();
+
+        return view('admin.dashboard', compact('counts', 'ultimosPosteos', 'ultimosProgramas'));
     }
 }

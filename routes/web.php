@@ -6,22 +6,21 @@ use App\Http\Controllers\PosteoController;
 use App\Http\Controllers\DashboardController; // Asegúrate de importar tu controlador
 use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\ProgramacionController;
+use App\Http\Controllers\RadioPublicController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 // Página principal de la radio (iframe player o lo que tengas en radio.blade.php)
-Route::get('/radio', function () {
-    return view('radio');
-})->name('radio');
+Route::get('/radio', [RadioPublicController::class, 'index'])->name('radio');
 
 
 
 
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
