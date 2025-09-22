@@ -18,6 +18,7 @@
     if (!isset($actual)) {
         $actual = null;
     }
+
 @endphp
 
 <div class="bg-white rounded-2xl shadow-xl overflow-hidden p-6 mb-8">

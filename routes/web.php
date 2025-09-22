@@ -8,13 +8,11 @@ use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\ProgramacionController;
 use App\Http\Controllers\RadioPublicController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+
 // Página principal de la radio (iframe player o lo que tengas en radio.blade.php)
 Route::get('/radio', [RadioPublicController::class, 'index'])->name('radio');
-
-
+// Página principal de la radio (iframe player o lo que tengas en radio.blade.php)
 
 
 

@@ -37,7 +37,7 @@ class ProgramaController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string|max:255',
             'conductor' => 'nullable|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
 
             // campos de programación
             'dia_semana' => 'nullable|integer|min:0|max:6',
@@ -120,24 +120,32 @@ class ProgramaController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string|max:255',
             'conductor' => 'nullable|string|max:255',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp,|max:2048',
 
             'programaciones' => 'nullable|array',
             'programaciones.*.id' => 'nullable|integer|exists:programaciones,id',
             'programaciones.*.dia_semana' => 'nullable|integer|min:0|max:6',
             'programaciones.*.hora_inicio' => 'nullable|date_format:H:i',
-            'programaciones.*.hora_fin'   => 'nullable|date_format:H:i',
+            'programaciones.*.hora_fin'   => 'nullable|date_format:H:i|after:programaciones.*.hora_inicio',
 
         ], [
             'programaciones.*.hora_inicio.regex' => 'La hora de inicio debe tener formato HH:MM (00–23:59).',
             'programaciones.*.hora_fin.regex'    => 'La hora de fin debe tener formato HH:MM (00–23:59).',
         ]);
 
-        // Ejecutar validación
-        $validated = $validator->validate();
+        $programaciones = collect($validated['programaciones'] ?? [])
+            ->filter(fn($p) => !empty($p['dia_semana']) && !empty($p['hora_inicio']) && !empty($p['hora_fin']))
+            ->map(function ($p) {
+                return [
+                    'id' => $p['id'] ?? null,
+                    'dia_semana' => (int) $p['dia_semana'],
+                    'hora_inicio' => substr($p['hora_inicio'], 0, 5), // normaliza a HH:MM
+                    'hora_fin'    => substr($p['hora_fin'], 0, 5),    // normaliza a HH:MM
+                ];
+            });
 
-        // Procesaremos las programaciones solo si vienen en el formulario.
-        $submittedProgramaciones = $validated['programaciones'] ?? null;
+
+        $validated = $validator->validate();
 
         try {
             DB::beginTransaction();
@@ -158,61 +166,47 @@ class ProgramaController extends Controller
                 'imagen' => $validated['imagen'] ?? $programa->imagen,
             ]);
 
+            // Filtrar filas vacías y normalizar HH:MM
+            $programaciones = collect($validated['programaciones'] ?? [])
+                ->filter(
+                    fn($p) =>
+                    !empty($p['dia_semana']) &&
+                        !empty($p['hora_inicio']) &&
+                        !empty($p['hora_fin'])
+                );
+
             $idsEnviados = [];
 
-            if (is_array($submittedProgramaciones)) {
-                $programaciones = collect($submittedProgramaciones)
-                    ->filter(fn($p) => isset($p['dia_semana'], $p['hora_inicio'], $p['hora_fin']) && $p['dia_semana'] !== '')
-                    ->map(function ($p) {
-                        return [
-                            'id' => $p['id'] ?? null,
-                            'dia_semana' => (int) $p['dia_semana'],
-                            'hora_inicio' => substr($p['hora_inicio'], 0, 5),
-                            'hora_fin'    => substr($p['hora_fin'], 0, 5),
-                        ];
-                    });
+            foreach ($programaciones as $p) {
+                $hi = substr($p['hora_inicio'], 0, 5);
+                $hf = substr($p['hora_fin'], 0, 5);
 
-                foreach ($programaciones as $p) {
-                    $hi = $p['hora_inicio'];
-                    $hf = $p['hora_fin'];
-
-                    // Validación simple: hora_fin debe ser mayor que hora_inicio
-                    if (strtotime($hf) <= strtotime($hi)) {
-                        throw \Illuminate\Validation\ValidationException::withMessages([
-                            'programaciones' => ["La hora de fin debe ser mayor que la hora de inicio ({$hi} - {$hf})." ]
-                        ]);
-                    }
-
-                    if (!empty($p['id'])) {
-                        // actualizar existente
-                        $programacion = $programa->programaciones()->find($p['id']);
-                        if ($programacion) {
-                            $programacion->update([
-                                'dia_semana' => (int)$p['dia_semana'],
-                                'hora_inicio' => $hi,
-                                'hora_fin'   => $hf,
-                            ]);
-                            $idsEnviados[] = $programacion->id;
-                        }
-                    } else {
-                        // crear nueva
-                        $nueva = $programa->programaciones()->create([
+                if (!empty($p['id'])) {
+                    // actualizar existente
+                    $programacion = $programa->programaciones()->find($p['id']);
+                    if ($programacion) {
+                        $programacion->update([
                             'dia_semana' => (int)$p['dia_semana'],
                             'hora_inicio' => $hi,
                             'hora_fin'   => $hf,
                         ]);
-                        $idsEnviados[] = $nueva->id;
+                        $idsEnviados[] = $programacion->id;
                     }
-                }
-
-                // Eliminar las programaciones que ya no vinieron del form
-                // Sólo borrar si se detectaron IDs (evita borrado masivo por formularios parcialmente vacíos)
-                if (count($idsEnviados) > 0) {
-                    $programa->programaciones()
-                        ->whereNotIn('id', $idsEnviados)
-                        ->delete();
+                } else {
+                    // crear nueva
+                    $nueva = $programa->programaciones()->create([
+                        'dia_semana' => (int)$p['dia_semana'],
+                        'hora_inicio' => $hi,
+                        'hora_fin'   => $hf,
+                    ]);
+                    $idsEnviados[] = $nueva->id;
                 }
             }
+
+            // Eliminar las programaciones que ya no vinieron del form
+            $programa->programaciones()
+                ->whereNotIn('id', $idsEnviados)
+                ->delete();
 
             DB::commit();
 

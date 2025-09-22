@@ -2,9 +2,9 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto py-8 px-4">
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex items-center justify-between mb-6 mt-6">
         <h1 class="text-3xl font-bold">Panel de Administración</h1>
-        <a href="{{ route('radio.programas.index') }}" class="px-4 py-2 rounded-full bg-lime-600 text-white">Ir a Programas</a>
+        <span class="text-gray-600">Bienvenido, {{ auth()->user()->name }}</span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -58,3 +58,5 @@
     </div>
 </div>
 @endsection
+
+

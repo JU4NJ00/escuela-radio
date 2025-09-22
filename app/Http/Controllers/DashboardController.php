@@ -19,9 +19,18 @@ class DashboardController extends Controller
             'programaciones' => Programacion::count(),
         ];
 
+        // Últimos 5
         $ultimosPosteos = Posteo::orderBy('created_at', 'desc')->limit(5)->get();
         $ultimosProgramas = Programa::orderBy('created_at', 'desc')->limit(5)->get();
 
-        return view('admin.dashboard', compact('counts', 'ultimosPosteos', 'ultimosProgramas'));
+        // 🔹 Todos los posteos (ordenados del más nuevo al más viejo)
+        $posteos = Posteo::orderBy('created_at', 'desc')->get();
+
+        return view('admin.dashboard', compact(
+            'counts',
+            'ultimosPosteos',
+            'ultimosProgramas',
+            'posteos' // se pasa a la vista
+        ));
     }
 }
