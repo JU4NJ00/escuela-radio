@@ -39,9 +39,9 @@ class PosteoController extends Controller
     {
         $request->validate([
             'titulo' => 'required|string|max:255',
-            'contenido' => 'required|string',
+            'contenido' => 'required',
             'extracto' => 'nullable|string|max:500',
-            'imagen_destacada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:8048',
+            'imagen_destacada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:8048',
             'estado' => 'required|in:borrador,publicado,archivado',
             'categoria_id' => 'nullable|string|max:255', // Validamos el campo de texto
             'etiquetas' => 'nullable|string|max:255', // Validamos el campo de texto
@@ -57,11 +57,14 @@ class PosteoController extends Controller
         // Procesar etiquetas a un array
         $etiquetasArray = $request->input('etiquetas') ? explode(',', $request->input('etiquetas')) : null;
 
+        // 🌟 Sanitizar el campo 'contenido' antes de guardarlo 🌟
+        $sanitizedContent = clean($request->contenido); // 'clean' es la función que proporciona la librería
+
         $posteo = Posteo::create([
             'usuario_id' => Auth::id(),
             'titulo' => $request->titulo,
             'slug' => Str::slug($request->titulo) . '-' . uniqid(),
-            'contenido' => $request->contenido,
+            'contenido' => $sanitizedContent,
             'extracto' => $request->extracto,
             'imagen_destacada' => $imagenPath,
             'estado' => $request->estado,
@@ -72,6 +75,31 @@ class PosteoController extends Controller
 
         return redirect()->route('posteo.index')
             ->with('success', 'Posteo creado correctamente.');
+    }
+
+    /**
+     * Maneja la subida de imágenes desde el editor CKEditor.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function uploadImageFromEditor(Request $request)
+    {
+        // Validar el archivo de imagen subido
+        $request->validate([
+            'upload' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:8048',
+        ]);
+
+        // Guardar la imagen en el disco público dentro de un directorio 'ckeditor/images'
+        if ($request->hasFile('upload')) {
+            $path = $request->file('upload')->store('ckeditor/images', 'public');
+
+            // Devolver la URL de la imagen en el formato que CKEditor espera
+            return response()->json(['url' => Storage::url($path)]);
+        }
+
+        // Si no hay archivo, devolver un error
+        return response()->json(['error' => 'No se ha subido ningún archivo.'], 400);
     }
 
     /**
@@ -111,7 +139,7 @@ class PosteoController extends Controller
             'titulo' => 'required|string|max:255',
             'contenido' => 'required|string',
             'extracto' => 'nullable|string|max:500',
-            'imagen_destacada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'imagen_destacada' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:8048',
             'estado' => 'in:borrador,publicado,archivado',
             'categoria' => 'nullable|string|max:255',
             'etiquetas' => 'nullable|string|max:255',

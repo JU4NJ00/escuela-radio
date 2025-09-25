@@ -35,6 +35,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/posteo/{posteo}', [PosteoController::class, 'update'])->name('posteo.update');
     Route::delete('/posteo/{posteo}', [PosteoController::class, 'destroy'])->name('posteo.destroy');
 
+        // 🌟 Nueva ruta para la subida de imágenes de CKEditor 🌟
+    Route::post('/posteo/upload-image', [PosteoController::class, 'uploadImageFromEditor'])->name('posteo.upload.image');
+
     Route::get('/test', function () {
         return 'Test funciona!';
     });

@@ -52,7 +52,7 @@
 
                     {{-- Contenido principal --}}
                     <div class="prose max-w-none text-gray-800 leading-relaxed mb-6">
-                        <p>{{ $posteo->contenido }}</p>
+                        <p>{!! $posteo->contenido !!}</p>
                     </div>
 
                     {{-- Etiquetas --}}

@@ -1,5 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Crear Nuevo Posteo') }}
         </h2>
@@ -45,17 +46,20 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="contenido" class="block font-medium text-sm text-gray-700">Contenido *</label>
-                                <textarea name="contenido" id="contenido" rows="6" required
-                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('contenido') border-red-500 @enderror">{{ old('contenido') }}</textarea>
+                                <label for="contenido" class="block font-medium text-sm text-gray-700">Contenido *
+                                    (Editor Visual)</label>
+                                <textarea name="contenido" id="contenido" rows="6" class="mt-1 block w-full"
+                                    placeholder="Escribe aquí el contenido completo de tu posteo, incluyendo títulos, imágenes, y videos.">{{ old('contenido') }}</textarea>
                                 @error('contenido')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+
                         </div>
 
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('Metadatos y Configuración') }}</h3>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('Metadatos y Configuración') }}
+                            </h3>
                             <div class="mb-4">
                                 <label for="imagen_destacada" class="block font-medium text-sm text-gray-700">
                                     Imagen Destacada
@@ -75,8 +79,10 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="categoria_id" class="block font-medium text-sm text-gray-700">Categoría</label>
-                                <input type="text" name="categoria_id" id="categoria_id" value="{{ old('categoria_id') }}"
+                                <label for="categoria_id"
+                                    class="block font-medium text-sm text-gray-700">Categoría</label>
+                                <input type="text" name="categoria_id" id="categoria_id"
+                                    value="{{ old('categoria_id') }}"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('categoria_id') border-red-500 @enderror"
                                     placeholder="Ej: Noticias, Tutoriales, etc.">
                                 @error('categoria_id')
@@ -85,7 +91,8 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="etiquetas" class="block font-medium text-sm text-gray-700">Etiquetas (separadas por comas)</label>
+                                <label for="etiquetas" class="block font-medium text-sm text-gray-700">Etiquetas
+                                    (separadas por comas)</label>
                                 <input type="text" name="etiquetas" id="etiquetas" value="{{ old('etiquetas') }}"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('etiquetas') border-red-500 @enderror">
                                 @error('etiquetas')
@@ -97,9 +104,12 @@
                                 <label for="estado" class="block font-medium text-sm text-gray-700">Estado *</label>
                                 <select name="estado" id="estado" required
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('estado') border-red-500 @enderror">
-                                    <option value="borrador" {{ old('estado') == 'borrador' ? 'selected' : '' }}>Borrador</option>
-                                    <option value="publicado" {{ old('estado') == 'publicado' ? 'selected' : '' }}>Publicado</option>
-                                    <option value="archivado" {{ old('estado') == 'archivado' ? 'selected' : '' }}>Archivado</option>
+                                    <option value="borrador" {{ old('estado') == 'borrador' ? 'selected' : '' }}>
+                                        Borrador</option>
+                                    <option value="publicado" {{ old('estado') == 'publicado' ? 'selected' : '' }}>
+                                        Publicado</option>
+                                    <option value="archivado" {{ old('estado') == 'archivado' ? 'selected' : '' }}>
+                                        Archivado</option>
                                 </select>
                                 @error('estado')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -107,8 +117,10 @@
                             </div>
 
                             <div class="mb-4">
-                                <label for="fecha_publicacion" class="block font-medium text-sm text-gray-700">Fecha de Publicación</label>
-                                <input type="datetime-local" name="fecha_publicacion" id="fecha_publicacion" value="{{ old('fecha_publicacion') }}"
+                                <label for="fecha_publicacion" class="block font-medium text-sm text-gray-700">Fecha de
+                                    Publicación</label>
+                                <input type="datetime-local" name="fecha_publicacion" id="fecha_publicacion"
+                                    value="{{ old('fecha_publicacion') }}"
                                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('fecha_publicacion') border-red-500 @enderror">
                                 @error('fecha_publicacion')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -127,8 +139,10 @@
                         </a>
                         <button type="submit"
                             class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4"></path>
                             </svg>
                             Crear Posteo
                         </button>
@@ -139,6 +153,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
     <script>
         function previewImage(input) {
             const preview = document.getElementById('preview');
@@ -157,5 +172,25 @@
                 previewContainer.classList.add('hidden');
             }
         }
+
+        ClassicEditor
+            .create(document.querySelector('#contenido'), {
+                toolbar: {
+                    items: [
+                        'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                        'blockQuote', 'insertTable', 'undo', 'redo', '|', 'mediaEmbed', 'imageUpload'
+                    ]
+                },
+                simpleUpload: {
+                    // Ahora la ruta coincide con la de web.php
+                    uploadUrl: '{{ route('posteo.upload.image') }}',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
     </script>
 </x-app-layout>
