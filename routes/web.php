@@ -12,9 +12,11 @@ use App\Http\Controllers\RadioPublicController;
 
 // Página principal de la radio (iframe player o lo que tengas en radio.blade.php)
 Route::get('/radio', [RadioPublicController::class, 'index'])->name('radio');
-// Página principal de la radio (iframe player o lo que tengas en radio.blade.php)
 
 
+Route::get('/show', function () {
+    return view('show');
+});
 
 Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -35,12 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/posteo/{posteo}', [PosteoController::class, 'update'])->name('posteo.update');
     Route::delete('/posteo/{posteo}', [PosteoController::class, 'destroy'])->name('posteo.destroy');
 
-        // 🌟 Nueva ruta para la subida de imágenes de CKEditor 🌟
+    // 🌟 Nueva ruta para la subida de imágenes de CKEditor 🌟
     Route::post('/posteo/upload-image', [PosteoController::class, 'uploadImageFromEditor'])->name('posteo.upload.image');
 
-    Route::get('/test', function () {
-        return 'Test funciona!';
-    });
 
     /*
     GET     /posteos           -> index
